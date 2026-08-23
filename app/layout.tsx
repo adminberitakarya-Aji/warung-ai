@@ -39,7 +39,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`dark bg-background ${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang="id"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable}`}
+    >
       <body className="bg-background font-sans antialiased">
         <Providers>
           <AppShell>{children}</AppShell>

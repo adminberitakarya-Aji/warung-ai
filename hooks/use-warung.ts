@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { api } from '@/lib/api/client'
 import { isActiveGeneration } from '@/lib/types'
-import type { AssetType, Character, CreateGenerationInput, Scene } from '@/lib/types'
+import type { Asset, AssetType, Character, CreateGenerationInput, Scene } from '@/lib/types'
 
 export const queryKeys = {
   session: ['session'] as const,
@@ -118,6 +118,14 @@ export function useAssets(query: string, type: AssetType | 'ALL') {
   return useQuery({
     queryKey: queryKeys.assets(query, type),
     queryFn: () => api.listAssets({ query, type }),
+  })
+}
+
+export function useCreateAsset() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: Partial<Asset>) => api.createAsset(body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['assets'] }),
   })
 }
 

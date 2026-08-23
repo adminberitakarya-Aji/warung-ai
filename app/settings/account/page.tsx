@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check, ShieldCheck, User } from 'lucide-react'
+import { User } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
@@ -50,7 +50,6 @@ export default function SettingsAccountPage() {
     return (
       <div className="flex flex-col gap-6">
         <Skeleton className="h-48 rounded-lg" />
-        <Skeleton className="h-36 rounded-lg" />
       </div>
     )
   }
@@ -90,7 +89,7 @@ export default function SettingsAccountPage() {
                 placeholder="email@domain.com"
               />
               <FieldDescription>
-                Digunakan untuk autentikasi dan notifikasi penyelesaian render.
+                Digunakan untuk notifikasi penyelesaian render dan penagihan.
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -99,38 +98,6 @@ export default function SettingsAccountPage() {
             <Button onClick={save} disabled={update.isPending || !name.trim()}>
               Simpan Perubahan
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="size-4 text-primary" />
-            <CardTitle className="text-base">Keamanan & Sesi</CardTitle>
-          </div>
-          <CardDescription className="text-xs">
-            Status login dan informasi autentikasi perangkat aktif saat ini.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-muted-foreground">
-          <div className="flex items-center justify-between border-b border-border/50 pb-2">
-            <span>Metode Login:</span>
-            <span className="font-mono text-foreground">Email / Sandi Sesi Studio</span>
-          </div>
-          <div className="flex items-center justify-between border-b border-border/50 pb-2">
-            <span>ID Pengguna:</span>
-            <span className="font-mono text-foreground">{user.id}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Terdaftar sejak:</span>
-            <span className="font-mono text-foreground">
-              {new Date(user.createdAt).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
           </div>
         </CardContent>
       </Card>

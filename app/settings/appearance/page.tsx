@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
 import { Check, Monitor, Moon, Sun } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
@@ -15,7 +15,7 @@ const THEMES = [
   {
     id: 'dark',
     name: 'Gelap Sinematik',
-    description: 'Tema gelap khas studio film dengan kontras tinggi (Bawaan).',
+    description: 'Tema gelap khas studio film dengan kontras tinggi (§28 spec bawaan).',
     icon: Moon,
   },
   {
@@ -33,13 +33,23 @@ const THEMES = [
 ]
 
 export default function SettingsAppearancePage() {
-  const [selectedTheme, setSelectedTheme] = useState('dark')
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [density, setDensity] = useState<'standard' | 'compact'>('standard')
   const [reducedMotion, setReducedMotion] = useState(false)
   const [highQualityPreview, setHighQualityPreview] = useState(true)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  function handleThemeChange(newTheme: string) {
+    setTheme(newTheme)
+    toast.success(`Tema diubah ke ${newTheme === 'dark' ? 'Gelap Sinematik' : newTheme === 'light' ? 'Terang' : 'Sistem'}`)
+  }
+
   function save() {
-    toast.success('Preferensi tampilan berhasil disimpan')
+    toast.success('Preferensi tampilan disimpan')
   }
 
   return (
@@ -48,39 +58,39 @@ export default function SettingsAppearancePage() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base">Tema Antarmuka</CardTitle>
           <CardDescription className="text-xs">
-            Pilih skema warna antarmuka ruang kerja WarungAI (§28 Dark Cinematic).
+            Pilih skema warna antarmuka ruang kerja WarungAI. Perubahan tema langsung diterapkan ke seluruh workspace.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
-            {THEMES.map((theme) => {
-              const active = selectedTheme === theme.id
-              const Icon = theme.icon
+            {THEMES.map((item) => {
+              const active = mounted && (theme === item.id || (!theme && item.id === 'dark'))
+              const Icon = item.icon
 
               return (
                 <button
-                  key={theme.id}
+                  key={item.id}
                   type="button"
-                  onClick={() => setSelectedTheme(theme.id)}
+                  onClick={() => handleThemeChange(item.id)}
                   className={cn(
-                    'flex flex-col gap-2 rounded-lg border p-4 text-left transition-colors',
+                    'flex flex-col gap-2 rounded-lg border p-4 text-left transition-all cursor-pointer',
                     active
-                      ? 'border-primary bg-primary/[0.04]'
+                      ? 'border-primary bg-primary/[0.06] shadow-xs'
                       : 'border-border bg-card hover:border-muted-foreground/40',
                   )}
                 >
                   <div className="flex items-center justify-between">
                     <Icon className={cn('size-4', active ? 'text-primary' : 'text-muted-foreground')} />
                     {active && (
-                      <Badge variant="secondary" className="font-mono text-[9px]">
+                      <Badge variant="default" className="font-mono text-[9px]">
                         Aktif
                       </Badge>
                     )}
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium">{theme.name}</span>
+                    <span className="text-sm font-medium">{item.name}</span>
                     <span className="text-[11px] leading-relaxed text-muted-foreground">
-                      {theme.description}
+                      {item.description}
                     </span>
                   </div>
                 </button>
@@ -92,7 +102,12 @@ export default function SettingsAppearancePage() {
 
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-base">Preferensi Kanvas & Layout</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Preferensi Kanvas & Layout</CardTitle>
+            <Badge variant="secondary" className="font-mono text-[10px]">
+              Preferensi Lokal
+            </Badge>
+          </div>
           <CardDescription className="text-xs">
             Sesuaikan kenyamanan visual dan kinerja render media di browser Anda.
           </CardDescription>
@@ -116,7 +131,7 @@ export default function SettingsAppearancePage() {
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-medium">Kurangi Gerakan & Animasi</span>
               <span className="text-[11px] text-muted-foreground">
-                Minimalkan transisi animasi antar-halaman untuk pengalaman yang lebih hemat daya.
+                Minimalkan transisi animasi antar-halaman (state lokal, CSS reduced-motion).
               </span>
             </div>
             <Switch
