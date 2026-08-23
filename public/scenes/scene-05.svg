@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 56.25" width="1920" height="1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#111b26"/>
+      <stop offset="100%" stop-color="#070a0e"/>
+    </linearGradient>
+    <radialGradient id="key" cx="52%" cy="44%" r="26%">
+      <stop offset="0%" stop-color="#ffbe63" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#ffbe63" stop-opacity="0.187"/>
+      <stop offset="100%" stop-color="#ffbe63" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vig" cx="50%" cy="50%" r="72%">
+      <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.72"/>
+    </radialGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+
+  <rect width="100" height="56.25" fill="url(#sky)"/>
+  <g transform="scale(1,0.5625)">
+    <rect x="0" y="0" width="26" height="74" fill="#0d141c" opacity="1"/>
+    <rect x="74" y="0" width="26" height="74" fill="#0b1118" opacity="1"/>
+    <rect x="0" y="70" width="100" height="30" fill="#121a22" opacity="1"/>
+    <rect x="44" y="40" width="14" height="12" fill="#f0ad55" opacity="0.55"/>
+    <rect x="46" y="52" width="10" height="18" fill="#1a232c" opacity="0.9"/>
+    <rect x="40" y="74" width="22" height="22" fill="#e2a054" opacity="0.14"/>
+    <rect x="8" y="18" width="10" height="1.4" fill="#243040" opacity="1"/>
+    <rect x="82" y="24" width="10" height="1.4" fill="#243040" opacity="1"/>
+  </g>
+  <rect width="100" height="56.25" fill="url(#key)"/>
+  <rect width="100" height="56.25" fill="#8fb4d8" opacity="0.0372"/>
+  <rect width="100" height="56.25" fill="url(#vig)"/>
+  <rect width="100" height="56.25" filter="url(#grain)" opacity="0.055"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 56.25" width="1920" height="1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0d0c"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+    <radialGradient id="key" cx="50%" cy="62%" r="34%">
+      <stop offset="0%" stop-color="#4f9fe0" stop-opacity="0.5"/>
+      <stop offset="55%" stop-color="#4f9fe0" stop-opacity="0.11"/>
+      <stop offset="100%" stop-color="#4f9fe0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vig" cx="50%" cy="50%" r="72%">
+      <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.72"/>
+    </radialGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+
+  <rect width="100" height="56.25" fill="url(#sky)"/>
+  <g transform="scale(1,0.5625)">
+    <ellipse cx="50" cy="58" rx="22" ry="6" fill="#7d848c" opacity="0.95"/>
+    <rect x="28" y="58" width="44" height="24" fill="#5f666e" opacity="1"/>
+    <ellipse cx="50" cy="82" rx="22" ry="5" fill="#3f454b" opacity="1"/>
+    <ellipse cx="50" cy="88" rx="15" ry="4" fill="#2b6ea8" opacity="0.8"/>
+    <ellipse cx="44" cy="90" rx="6" ry="2.6" fill="#59a7dd" opacity="0.85"/>
+    <ellipse cx="57" cy="90" rx="6" ry="2.6" fill="#59a7dd" opacity="0.85"/>
+    <ellipse cx="50" cy="40" rx="13" ry="15" fill="#cfd6de" opacity="0.12"/>
+    <ellipse cx="46" cy="22" rx="9" ry="12" fill="#cfd6de" opacity="0.08"/>
+  </g>
+  <rect width="100" height="56.25" fill="url(#key)"/>
+  <rect width="100" height="56.25" fill="#8fb4d8" opacity="0.033"/>
+  <rect width="100" height="56.25" fill="url(#vig)"/>
+  <rect width="100" height="56.25" filter="url(#grain)" opacity="0.055"/>
+</svg>
