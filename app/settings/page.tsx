@@ -16,7 +16,7 @@ import { useWorkspaceStore } from '@/stores/workspace-store'
 
 const PLAN_LABEL: Record<string, string> = {
   FREE: 'Gratis',
-  PRO: 'Pro',
+  CREATOR: 'Kreator',
   STUDIO: 'Studio',
 }
 

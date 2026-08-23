@@ -45,5 +45,13 @@ export async function DELETE(_request: Request, { params }: Params) {
 
   db.characters.splice(index, 1)
 
+  // References live in their own table now, so they must be cleaned up
+  // explicitly or they outlive the character they belong to.
+  for (let i = db.characterReferences.length - 1; i >= 0; i -= 1) {
+    if (db.characterReferences[i].characterId === id) {
+      db.characterReferences.splice(i, 1)
+    }
+  }
+
   return NextResponse.json({ ok: true })
 }

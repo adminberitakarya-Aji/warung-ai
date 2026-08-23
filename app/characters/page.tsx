@@ -84,7 +84,7 @@ export default function CharactersPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {characters.map((character) => {
-              const cover = character.references[0]
+              const cover = character.references[0]?.asset
               return (
                 <button
                   key={character.id}

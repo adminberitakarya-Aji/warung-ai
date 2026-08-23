@@ -7,14 +7,28 @@
 // The UI never imports this file — it only ever talks to /api/v1.
 
 import { db, newId } from '@/lib/server/db'
+import { isActiveGeneration } from '@/lib/types'
 import type {
   Asset,
   CreateGenerationInput,
   Generation,
   GenerationParameters,
+  GenerationStatus,
 } from '@/lib/types'
 
 const QUEUE_MS = 1_200
+
+/**
+ * The working phases after QUEUED, as fractions of the total job duration.
+ * These stand in for what the real worker does: call the model, post-process
+ * the media, then upload it to object storage. Weights must sum to 1.
+ */
+const PHASES = [
+  { status: 'PROCESSING', share: 0.15 },
+  { status: 'GENERATING', share: 0.55 },
+  { status: 'PROCESSING_MEDIA', share: 0.2 },
+  { status: 'UPLOADING', share: 0.1 },
+] as const satisfies ReadonlyArray<{ status: GenerationStatus; share: number }>
 
 const RESULT_POOL = [
   '/scenes/scene-01.svg',
@@ -119,6 +133,17 @@ function completeAsset(generation: Generation, runtime: MockRuntime): Asset {
   return asset
 }
 
+/** Maps a 0..1 progress ratio onto the working phase that covers it. */
+function phaseFor(ratio: number): GenerationStatus {
+  let boundary = 0
+  for (const phase of PHASES) {
+    boundary += phase.share
+    if (ratio < boundary) return phase.status
+  }
+  // Floating-point drift near 1 lands here; the last phase is the right answer.
+  return PHASES[PHASES.length - 1].status
+}
+
 /** Recomputes the simulated lifecycle for a generation and persists the result. */
 export function advance(generation: Generation): Generation {
   if (
@@ -147,7 +172,7 @@ export function advance(generation: Generation): Generation {
   const ratio = (elapsed - QUEUE_MS) / runtime.totalMs
 
   if (ratio < 1) {
-    generation.status = 'PROCESSING'
+    generation.status = phaseFor(ratio)
     generation.progress = Math.min(99, Math.round(ratio * 100))
     generation.updatedAt = new Date().toISOString()
 
@@ -196,7 +221,7 @@ export function cancelGeneration(id: string): Generation | undefined {
   const generation = db.generations.find((item) => item.id === id)
   if (!generation) return undefined
 
-  if (generation.status === 'QUEUED' || generation.status === 'PROCESSING') {
+  if (isActiveGeneration(generation.status)) {
     generation.status = 'CANCELLED'
     generation.updatedAt = new Date().toISOString()
     runtimes.delete(generation.id)

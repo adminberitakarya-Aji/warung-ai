@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { api } from '@/lib/api/client'
+import { isActiveGeneration } from '@/lib/types'
 import type { AssetType, Character, CreateGenerationInput, Scene } from '@/lib/types'
 
 export const queryKeys = {
@@ -134,9 +135,7 @@ export function useGenerations() {
     queryFn: api.listGenerations,
     refetchInterval: (query) => {
       const generations = query.state.data?.generations ?? []
-      const active = generations.some(
-        (item) => item.status === 'QUEUED' || item.status === 'PROCESSING',
-      )
+      const active = generations.some((item) => isActiveGeneration(item.status))
       return active ? 900 : false
     },
   })
@@ -149,8 +148,7 @@ export function useGeneration(id: string | null) {
     queryFn: () => api.getGeneration(id as string),
     enabled: Boolean(id),
     refetchInterval: (query) => {
-      const status = query.state.data?.generation.status
-      return status === 'QUEUED' || status === 'PROCESSING' ? 700 : false
+      return isActiveGeneration(query.state.data?.generation.status) ? 700 : false
     },
   })
 }

@@ -7,16 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useCancelGeneration } from '@/hooks/use-warung'
+import { STATUS_LABEL } from '@/lib/generation-labels'
+import { isActiveGeneration } from '@/lib/types'
 import type { Generation } from '@/lib/types'
 import { cn } from '@/lib/utils'
-
-const STATUS_LABEL: Record<Generation['status'], string> = {
-  QUEUED: 'Menunggu',
-  PROCESSING: 'Memproses',
-  COMPLETED: 'Selesai',
-  FAILED: 'Gagal',
-  CANCELLED: 'Dibatalkan',
-}
 
 export function GenerationCard({
   generation,
@@ -26,7 +20,7 @@ export function GenerationCard({
   onSelect?: (generation: Generation) => void
 }) {
   const cancel = useCancelGeneration()
-  const active = generation.status === 'QUEUED' || generation.status === 'PROCESSING'
+  const active = isActiveGeneration(generation.status)
   const asset = generation.resultAsset
 
   return (
@@ -52,9 +46,14 @@ export function GenerationCard({
             ) : generation.status === 'CANCELLED' ? (
               <Ban className="size-5 text-muted-foreground" />
             ) : (
-              <span className="font-mono text-xs text-muted-foreground tabular-nums">
-                {generation.progress}%
-              </span>
+              <div className="flex flex-col items-center gap-1">
+                <span className="font-mono text-xs text-muted-foreground tabular-nums">
+                  {generation.progress}%
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                  {STATUS_LABEL[generation.status]}
+                </span>
+              </div>
             )}
           </div>
         )}

@@ -46,14 +46,33 @@ export default function StoryboardPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const selected = scenes.find((scene) => scene.id === selectedId) ?? scenes[0] ?? null
 
+  const [draftTitle, setDraftTitle] = useState('')
   const [draftPrompt, setDraftPrompt] = useState('')
   const [draftDuration, setDraftDuration] = useState(5)
+  const [draftCamera, setDraftCamera] = useState('')
+  const [draftShotType, setDraftShotType] = useState('')
+  const [draftLighting, setDraftLighting] = useState('')
+  const [draftStyle, setDraftStyle] = useState('')
 
   useEffect(() => {
     if (!selected) return
+    setDraftTitle(selected.title)
     setDraftPrompt(selected.prompt)
     setDraftDuration(selected.duration)
-  }, [selected?.id, selected?.prompt, selected?.duration])
+    setDraftCamera(selected.camera || '')
+    setDraftShotType(selected.shotType || '')
+    setDraftLighting(selected.lighting || '')
+    setDraftStyle(selected.style || '')
+  }, [
+    selected?.id,
+    selected?.title,
+    selected?.prompt,
+    selected?.duration,
+    selected?.camera,
+    selected?.shotType,
+    selected?.lighting,
+    selected?.style,
+  ])
 
   const totalDuration = scenes.reduce((total, scene) => total + scene.duration, 0)
 
@@ -80,8 +99,13 @@ export default function StoryboardPage() {
     try {
       await updateScene.mutateAsync({
         id: selected.id,
+        title: draftTitle.trim() || selected.title,
         prompt: draftPrompt,
         duration: draftDuration,
+        camera: draftCamera,
+        shotType: draftShotType,
+        lighting: draftLighting,
+        style: draftStyle,
       })
       toast.success('Adegan disimpan')
     } catch (error) {
@@ -182,6 +206,30 @@ export default function StoryboardPage() {
                     <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                       {scene.prompt || 'Belum ada deskripsi adegan.'}
                     </p>
+                    {(scene.camera || scene.shotType || scene.lighting || scene.style) && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {scene.shotType && (
+                          <Badge variant="outline" className="font-mono text-[9px]">
+                            {scene.shotType}
+                          </Badge>
+                        )}
+                        {scene.camera && (
+                          <Badge variant="outline" className="font-mono text-[9px]">
+                            {scene.camera}
+                          </Badge>
+                        )}
+                        {scene.lighting && (
+                          <Badge variant="outline" className="font-mono text-[9px]">
+                            {scene.lighting}
+                          </Badge>
+                        )}
+                        {scene.style && (
+                          <Badge variant="outline" className="font-mono text-[9px]">
+                            {scene.style}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex shrink-0 flex-col gap-1">
@@ -227,13 +275,23 @@ export default function StoryboardPage() {
           {selected ? (
             <>
               <Field>
-                <FieldLabel htmlFor="scene-prompt">Deskripsi</FieldLabel>
+                <FieldLabel htmlFor="scene-title">Judul</FieldLabel>
+                <Input
+                  id="scene-title"
+                  value={draftTitle}
+                  onChange={(event) => setDraftTitle(event.target.value)}
+                  placeholder="Judul adegan…"
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="scene-prompt">Deskripsi Prompt</FieldLabel>
                 <Textarea
                   id="scene-prompt"
-                  rows={6}
+                  rows={4}
                   value={draftPrompt}
                   onChange={(event) => setDraftPrompt(event.target.value)}
-                  placeholder="Jelaskan aksi, kamera, dan suasana adegan…"
+                  placeholder="Jelaskan aksi, karakter, dan suasana adegan…"
                 />
               </Field>
 
@@ -249,13 +307,57 @@ export default function StoryboardPage() {
                 />
               </Field>
 
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel htmlFor="scene-camera">Kamera</FieldLabel>
+                  <Input
+                    id="scene-camera"
+                    value={draftCamera}
+                    onChange={(event) => setDraftCamera(event.target.value)}
+                    placeholder="mis. Static, Pan"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="scene-shot-type">Tipe Shot</FieldLabel>
+                  <Input
+                    id="scene-shot-type"
+                    value={draftShotType}
+                    onChange={(event) => setDraftShotType(event.target.value)}
+                    placeholder="mis. Wide, Close-up"
+                  />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel htmlFor="scene-lighting">Pencahayaan</FieldLabel>
+                  <Input
+                    id="scene-lighting"
+                    value={draftLighting}
+                    onChange={(event) => setDraftLighting(event.target.value)}
+                    placeholder="mis. Warm practical"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="scene-style">Gaya</FieldLabel>
+                  <Input
+                    id="scene-style"
+                    value={draftStyle}
+                    onChange={(event) => setDraftStyle(event.target.value)}
+                    placeholder="mis. Cinematic 35mm"
+                  />
+                </Field>
+              </div>
+
               <Button onClick={saveScene} disabled={updateScene.isPending}>
                 Simpan adegan
               </Button>
             </>
           ) : (
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Pilih adegan di sebelah kiri untuk mengubah deskripsi dan durasinya.
+              Pilih adegan di sebelah kiri untuk mengubah detailnya.
             </p>
           )}
         </aside>

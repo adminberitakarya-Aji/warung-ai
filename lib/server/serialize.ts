@@ -1,12 +1,16 @@
 import { db } from '@/lib/server/db'
-import type { Asset, Character, Project, Scene } from '@/lib/types'
+import type { Asset, Character, CharacterReference, Project, Scene } from '@/lib/types'
 
 export interface SceneWithAsset extends Scene {
   currentAsset: Asset | null
 }
 
+export interface CharacterReferenceWithAsset extends CharacterReference {
+  asset: Asset
+}
+
 export interface CharacterWithReferences extends Character {
-  references: Asset[]
+  references: CharacterReferenceWithAsset[]
 }
 
 export interface ProjectWithMeta extends Project {
@@ -38,10 +42,13 @@ export function serializeProject(project: Project): ProjectWithMeta {
 }
 
 export function serializeCharacter(character: Character): CharacterWithReferences {
-  return {
-    ...character,
-    references: character.referenceAssetIds
-      .map((id) => findAsset(id))
-      .filter((asset): asset is Asset => asset !== null),
-  }
+  const references = db.characterReferences
+    .filter((reference) => reference.characterId === character.id)
+    .map((reference) => {
+      const asset = findAsset(reference.assetId)
+      return asset ? { ...reference, asset } : null
+    })
+    .filter((reference): reference is CharacterReferenceWithAsset => reference !== null)
+
+  return { ...character, references }
 }

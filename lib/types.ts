@@ -58,9 +58,23 @@ export interface Character {
   appearance: string
   clothing: string
   personality: string
-  referenceAssetIds: string[]
   createdAt: string
   updatedAt: string
+}
+
+/**
+ * What part of a character a reference image pins down. Keeping this on the
+ * join row is the reason CharacterReference is its own entity rather than a
+ * flat list of asset ids on Character.
+ */
+export type CharacterReferenceType = 'FACE' | 'BODY' | 'OUTFIT' | 'EXPRESSION'
+
+export interface CharacterReference {
+  id: string
+  characterId: string
+  assetId: string
+  type: CharacterReferenceType
+  createdAt: string
 }
 
 export type AssetType = 'IMAGE' | 'VIDEO' | 'AUDIO' | 'REFERENCE'
@@ -83,7 +97,38 @@ export interface Asset {
 
 export type GenerationType = 'IMAGE' | 'VIDEO' | 'REFINEMENT' | 'TOOL'
 
-export type GenerationStatus = 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
+export type GenerationStatus =
+  | 'QUEUED'
+  | 'PROCESSING'
+  | 'GENERATING'
+  | 'PROCESSING_MEDIA'
+  | 'UPLOADING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+
+/**
+ * Statuses where a job is still in flight, in lifecycle order.
+ *
+ * Use `isActiveGeneration` rather than comparing against QUEUED and PROCESSING
+ * by hand — the intermediate phases are easy to forget, and missing one
+ * silently makes a running job look idle.
+ */
+export const ACTIVE_GENERATION_STATUSES = [
+  'QUEUED',
+  'PROCESSING',
+  'GENERATING',
+  'PROCESSING_MEDIA',
+  'UPLOADING',
+] as const satisfies readonly GenerationStatus[]
+
+export type ActiveGenerationStatus = (typeof ACTIVE_GENERATION_STATUSES)[number]
+
+export function isActiveGeneration(
+  status: GenerationStatus | undefined,
+): status is ActiveGenerationStatus {
+  return status !== undefined && (ACTIVE_GENERATION_STATUSES as readonly string[]).includes(status)
+}
 
 export type AspectRatio = '16:9' | '9:16' | '1:1'
 

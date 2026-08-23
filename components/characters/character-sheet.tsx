@@ -20,6 +20,14 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useDeleteCharacter, useUpdateCharacter } from '@/hooks/use-warung'
 import type { CharacterWithReferences } from '@/lib/api/client'
+import type { CharacterReferenceType } from '@/lib/types'
+
+const REFERENCE_TYPE_LABELS: Record<CharacterReferenceType, string> = {
+  FACE: 'wajah',
+  BODY: 'tubuh',
+  OUTFIT: 'pakaian',
+  EXPRESSION: 'ekspresi',
+}
 
 const EMPTY = {
   name: '',
@@ -102,18 +110,20 @@ export function CharacterSheet({
               </span>
               <div className="flex flex-wrap gap-2">
                 {character.references.map((reference) => (
-                  <div
-                    key={reference.id}
-                    className="relative size-20 overflow-hidden rounded-md border border-border"
-                  >
-                    <Image
-                      src={reference.thumbnailUrl || reference.url}
-                      alt={reference.name}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                    />
-                  </div>
+                  <figure key={reference.id} className="flex flex-col gap-1">
+                    <div className="relative size-20 overflow-hidden rounded-md border border-border">
+                      <Image
+                        src={reference.asset.thumbnailUrl || reference.asset.url}
+                        alt={reference.asset.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <figcaption className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {REFERENCE_TYPE_LABELS[reference.type]}
+                    </figcaption>
+                  </figure>
                 ))}
               </div>
             </div>

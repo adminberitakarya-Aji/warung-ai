@@ -5,6 +5,7 @@
 import type {
   Asset,
   Character,
+  CharacterReference,
   Generation,
   GenerationModel,
   Project,
@@ -17,6 +18,7 @@ interface Database {
   projects: Project[]
   scenes: Scene[]
   characters: Character[]
+  characterReferences: CharacterReference[]
   assets: Asset[]
   generations: Generation[]
 }
@@ -149,7 +151,6 @@ function seedCharacters(): Character[] {
       appearance: 'Pria 30 tahun, rambut hitam pendek, sorot mata tenang.',
       clothing: 'Kemeja linen hijau zaitun yang sudah lusuh.',
       personality: 'Pendiam, penuh perhitungan, menahan banyak hal.',
-      referenceAssetIds: ['ast_char_adi'],
       createdAt: now,
       updatedAt: now,
     },
@@ -162,7 +163,6 @@ function seedCharacters(): Character[] {
       appearance: 'Perempuan 55 tahun, rambut disanggul, mata lelah namun hangat.',
       clothing: 'Blus batik pudar dengan celemek katun.',
       personality: 'Hangat, keras kepala, tak pernah meminta tolong.',
-      referenceAssetIds: ['ast_char_sari'],
       createdAt: now,
       updatedAt: now,
     },
@@ -175,7 +175,6 @@ function seedCharacters(): Character[] {
       appearance: 'Pria 45 tahun, rambut klimis, kumis tipis.',
       clothing: 'Kemeja gelap berkancing rapi.',
       personality: 'Tenang, terukur, sulit dibaca.',
-      referenceAssetIds: ['ast_char_bagas'],
       createdAt: now,
       updatedAt: now,
     },
@@ -188,11 +187,29 @@ function seedCharacters(): Character[] {
       appearance: 'Anak perempuan 12 tahun, rambut dikepang dua.',
       clothing: 'Kaos bergaris sederhana.',
       personality: 'Penasaran, jujur, tak bisa menyimpan rahasia.',
-      referenceAssetIds: ['ast_char_maya'],
       createdAt: now,
       updatedAt: now,
     },
   ]
+}
+
+// One FACE reference per seeded character. BODY/OUTFIT/EXPRESSION rows become
+// reachable once the asset-upload UI lands; the entity already supports them.
+function seedCharacterReferences(): CharacterReference[] {
+  const pairs: Array<[string, string]> = [
+    ['chr_1', 'ast_char_adi'],
+    ['chr_2', 'ast_char_sari'],
+    ['chr_3', 'ast_char_bagas'],
+    ['chr_4', 'ast_char_maya'],
+  ]
+
+  return pairs.map(([characterId, assetId], index) => ({
+    id: `chrref_${index + 1}`,
+    characterId,
+    assetId,
+    type: 'FACE' as const,
+    createdAt: now,
+  }))
 }
 
 function seedDatabase(): Database {
@@ -232,6 +249,7 @@ function seedDatabase(): Database {
     ],
     scenes: seedScenes(),
     characters: seedCharacters(),
+    characterReferences: seedCharacterReferences(),
     assets: seedAssets(),
     generations: [],
   }

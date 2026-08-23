@@ -21,9 +21,12 @@ export async function DELETE(_request: Request, { params }: Params) {
     }
   })
 
-  db.characters.forEach((character) => {
-    character.referenceAssetIds = character.referenceAssetIds.filter((refId) => refId !== id)
-  })
+  // Drop any character reference pointing at the deleted asset.
+  for (let index = db.characterReferences.length - 1; index >= 0; index -= 1) {
+    if (db.characterReferences[index].assetId === id) {
+      db.characterReferences.splice(index, 1)
+    }
+  }
 
   return NextResponse.json({ ok: true })
 }

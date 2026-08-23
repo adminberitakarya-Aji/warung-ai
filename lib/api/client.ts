@@ -5,6 +5,7 @@ import type {
   Asset,
   AssetType,
   Character,
+  CharacterReference,
   CreateGenerationInput,
   Generation,
   GenerationModel,
@@ -18,8 +19,12 @@ export interface SceneWithAsset extends Scene {
   currentAsset: Asset | null
 }
 
+export interface CharacterReferenceWithAsset extends CharacterReference {
+  asset: Asset
+}
+
 export interface CharacterWithReferences extends Character {
-  references: Asset[]
+  references: CharacterReferenceWithAsset[]
 }
 
 export interface ProjectWithMeta extends Project {

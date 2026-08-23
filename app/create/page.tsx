@@ -14,6 +14,8 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCreateRefinement, useGenerations } from '@/hooks/use-warung'
+import { STATUS_LABEL } from '@/lib/generation-labels'
+import { isActiveGeneration } from '@/lib/types'
 import { useWorkspaceStore } from '@/stores/workspace-store'
 
 const REFINEMENTS = [
@@ -39,7 +41,7 @@ export default function CreatePage() {
   const selected =
     generations.find((generation) => generation.id === activeGenerationId) ?? generations[0] ?? null
   const asset = selected?.resultAsset ?? null
-  const busy = selected?.status === 'QUEUED' || selected?.status === 'PROCESSING'
+  const busy = isActiveGeneration(selected?.status)
 
   return (
     <div className="flex flex-col">
@@ -100,8 +102,8 @@ export default function CreatePage() {
                         {selected?.progress}%
                       </span>
                       <Progress value={selected?.progress ?? 0} className="h-1 w-40" />
-                      <p className="text-xs text-muted-foreground">
-                        Sedang merender adegan Anda…
+                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                        {selected ? STATUS_LABEL[selected.status] : 'Menunggu'}
                       </p>
                     </>
                   ) : (

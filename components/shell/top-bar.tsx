@@ -31,7 +31,7 @@ export function TopBar() {
   const activeModel = models.find((m) => m.id === activeModelId)
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-1 border-b border-border bg-card/70 px-3 backdrop-blur">
+    <header className="flex h-16 shrink-0 items-center gap-1 border-b border-border bg-card/70 px-3 backdrop-blur">
       <Button
         variant="ghost"
         size="icon"

@@ -15,6 +15,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useAssets, useCreateRefinement, useGeneration } from '@/hooks/use-warung'
+import { STATUS_LABEL } from '@/lib/generation-labels'
+import { isActiveGeneration } from '@/lib/types'
 
 const TAGS = [
   'Perbaiki wajah',
@@ -45,7 +47,7 @@ export default function RefinePage() {
     if (!selectedId && assets[0]) setSelectedId(assets[0].id)
   }, [assets, selectedId])
 
-  const isRunning = generation?.status === 'QUEUED' || generation?.status === 'PROCESSING'
+  const isRunning = isActiveGeneration(generation?.status)
   const result = generation?.status === 'COMPLETED' ? generation.resultAsset : null
 
   async function submit() {
@@ -129,7 +131,7 @@ export default function RefinePage() {
             {isRunning ? (
               <div className="flex size-full flex-col items-center justify-center gap-3">
                 <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  Memproses perbaikan
+                  {generation ? STATUS_LABEL[generation.status] : 'Memproses perbaikan'}
                 </span>
                 <Progress value={generation?.progress ?? 0} className="w-56" />
               </div>

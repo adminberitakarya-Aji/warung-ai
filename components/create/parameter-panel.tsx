@@ -114,9 +114,9 @@ export function ParameterPanel() {
                     )}
                   >
                     <span className="relative size-6 shrink-0 overflow-hidden rounded-full bg-muted">
-                      {character.references[0]?.thumbnailUrl && (
+                      {character.references[0]?.asset.thumbnailUrl && (
                         <Image
-                          src={character.references[0].thumbnailUrl}
+                          src={character.references[0].asset.thumbnailUrl}
                           alt=""
                           fill
                           sizes="24px"

@@ -1,21 +1,25 @@
 'use client'
 
 import { useGenerations } from '@/hooks/use-warung'
+import { STATUS_LABEL } from '@/lib/generation-labels'
+import { isActiveGeneration } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export function GenerationStatus() {
   const { data } = useGenerations()
   const generations = data?.generations ?? []
-  const active = generations.filter(
-    (item) => item.status === 'QUEUED' || item.status === 'PROCESSING',
-  )
+  const active = generations.filter((item) => isActiveGeneration(item.status))
   const failed = generations.some((item) => item.status === 'FAILED')
 
-  const label = active.length
-    ? `Memproses ${active.length}`
-    : failed
-      ? 'Perlu perhatian'
-      : 'Siap'
+  // With one job running, its phase is more useful than a count.
+  const label =
+    active.length === 1
+      ? STATUS_LABEL[active[0].status]
+      : active.length > 1
+        ? `Memproses ${active.length}`
+        : failed
+          ? 'Perlu perhatian'
+          : 'Siap'
 
   return (
     <div

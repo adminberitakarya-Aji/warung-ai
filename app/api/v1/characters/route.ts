@@ -38,7 +38,6 @@ export async function POST(request: Request) {
     appearance: body.appearance?.trim() ?? '',
     clothing: body.clothing?.trim() ?? '',
     personality: body.personality?.trim() ?? '',
-    referenceAssetIds: [],
     createdAt: timestamp,
     updatedAt: timestamp,
   }
