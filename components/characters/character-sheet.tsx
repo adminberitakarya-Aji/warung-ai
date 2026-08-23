@@ -191,7 +191,7 @@ export function CharacterSheet({
             Hapus
           </Button>
           <div className="flex items-center gap-2">
-            <SheetClose render={<Button variant="ghost" size="sm" nativeButton={false} />}>
+            <SheetClose render={<Button variant="ghost" size="sm" />}>
               Batal
             </SheetClose>
             <Button size="sm" onClick={save} disabled={update.isPending || !draft.name.trim()}>
