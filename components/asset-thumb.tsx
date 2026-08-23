@@ -34,7 +34,17 @@ export function AssetThumb({ asset, alt, sizes, className, priority }: AssetThum
     )
   }
 
+  const isDataUrl = src.startsWith('data:')
+
   return (
-    <Image src={src} alt={alt} fill sizes={sizes} className={className} priority={priority} />
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className={className}
+      priority={priority}
+      unoptimized={isDataUrl}
+    />
   )
 }

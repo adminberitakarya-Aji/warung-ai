@@ -7,6 +7,7 @@ import {
   FileImage,
   FileVideo,
   Images,
+  Info,
   Play,
   Plus,
   Search,
@@ -374,6 +375,12 @@ export default function AssetsPage() {
                 </FieldGroup>
               </div>
             )}
+            <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/40 p-2.5 text-xs text-muted-foreground">
+              <Info className="size-4 text-primary shrink-0" />
+              <span>
+                Penyimpanan berkas saat ini bersifat sesi in-memory (Fase Mock). Integrasi Cloudflare R2 / S3 Object Storage permanen akan aktif di Fase 9 spec.
+              </span>
+            </div>
           </div>
 
           <DialogFooter className="border-t border-border pt-3">
