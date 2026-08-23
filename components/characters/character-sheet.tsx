@@ -1,8 +1,9 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { ExternalLink, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -186,10 +187,20 @@ export function CharacterSheet({
         </div>
 
         <SheetFooter className="flex-row items-center justify-between border-t border-border">
-          <Button variant="ghost" size="sm" onClick={destroy} disabled={remove.isPending}>
-            <Trash2 data-icon="inline-start" />
-            Hapus
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={destroy} disabled={remove.isPending}>
+              <Trash2 data-icon="inline-start" />
+              Hapus
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href={`/characters/${character.id}`} onClick={() => onOpenChange(false)} />}
+            >
+              <ExternalLink data-icon="inline-start" />
+              Lihat detail
+            </Button>
+          </div>
           <div className="flex items-center gap-2">
             <SheetClose render={<Button variant="ghost" size="sm" />}>
               Batal
