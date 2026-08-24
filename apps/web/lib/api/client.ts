@@ -33,10 +33,13 @@ export interface ProjectWithMeta extends Project {
   totalDuration: number
 }
 
-const BASE = '/api/v1'
+const API_BASE =
+  typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
+    : '/api/v1'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE}${path}`, {
+  const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: init?.body ? { 'content-type': 'application/json', ...init?.headers } : init?.headers,
   })
