@@ -1,6 +1,5 @@
-// Shared domain types. These mirror the data model in the spec and are the
-// contract between the UI and the /api/v1 layer. When the real TypeScript API
-// replaces the route handlers, only the transport changes — not these types.
+// Shared domain types for WarungAI platform.
+// Contract between UI (@warungai/web), API (@warungai/api), and Worker (@warungai/worker).
 
 export type Plan = 'FREE' | 'CREATOR' | 'STUDIO'
 
@@ -63,9 +62,7 @@ export interface Character {
 }
 
 /**
- * What part of a character a reference image pins down. Keeping this on the
- * join row is the reason CharacterReference is its own entity rather than a
- * flat list of asset ids on Character.
+ * What part of a character a reference image pins down (§8 spec).
  */
 export type CharacterReferenceType = 'FACE' | 'BODY' | 'OUTFIT' | 'EXPRESSION'
 
@@ -108,11 +105,7 @@ export type GenerationStatus =
   | 'CANCELLED'
 
 /**
- * Statuses where a job is still in flight, in lifecycle order.
- *
- * Use `isActiveGeneration` rather than comparing against QUEUED and PROCESSING
- * by hand — the intermediate phases are easy to forget, and missing one
- * silently makes a running job look idle.
+ * Statuses where a job is still in flight, in lifecycle order (§7 spec).
  */
 export const ACTIVE_GENERATION_STATUSES = [
   'QUEUED',
