@@ -1,0 +1,232 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Plan {
+  FREE
+  CREATOR
+  STUDIO
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum SceneStatus {
+  EMPTY
+  QUEUED
+  GENERATING
+  READY
+  FAILED
+}
+
+enum CharacterReferenceType {
+  FACE
+  BODY
+  OUTFIT
+  EXPRESSION
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  AUDIO
+  REFERENCE
+}
+
+enum GenerationType {
+  IMAGE
+  VIDEO
+  REFINEMENT
+  TOOL
+}
+
+enum GenerationStatus {
+  QUEUED
+  PROCESSING
+  GENERATING
+  PROCESSING_MEDIA
+  UPLOADING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  avatarUrl   String?
+  plan        Plan     @default(FREE)
+  credits     Int      @default(100)
+  creditsUsed Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projects           Project[]
+  scenes             Scene[]
+  characters         Character[]
+  assets             Asset[]
+  generations        Generation[]
+  creditTransactions CreditTransaction[]
+
+  @@map("users")
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  userId           String
+  title            String
+  description      String        @default("")
+  thumbnailAssetId String?
+  status           ProjectStatus @default(ACTIVE)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenes      Scene[]
+  assets      Asset[]
+  generations Generation[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+model Scene {
+  id             String      @id @default(cuid())
+  projectId      String
+  userId         String
+  title          String
+  order          Int         @default(1)
+  prompt         String      @default("")
+  duration       Int         @default(5)
+  aspectRatio    String      @default("16:9")
+  camera         String      @default("")
+  shotType       String      @default("")
+  lighting       String      @default("")
+  style          String      @default("")
+  status         SceneStatus @default(EMPTY)
+  currentAssetId String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentAsset Asset?       @relation("SceneCurrentAsset", fields: [currentAssetId], references: [id], onDelete: SetNull)
+  generations  Generation[]
+
+  @@index([projectId, order])
+  @@index([userId])
+  @@map("scenes")
+}
+
+model Character {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  role        String   @default("Pendukung")
+  description String   @default("")
+  appearance  String   @default("")
+  clothing    String   @default("")
+  personality String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  references CharacterReference[]
+
+  @@index([userId])
+  @@map("characters")
+}
+
+model CharacterReference {
+  id          String                 @id @default(cuid())
+  characterId String
+  assetId     String
+  type        CharacterReferenceType @default(FACE)
+  createdAt   DateTime               @default(now())
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  asset     Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([assetId])
+  @@map("character_references")
+}
+
+model Asset {
+  id           String    @id @default(cuid())
+  userId       String
+  projectId    String?
+  name         String
+  type         AssetType @default(IMAGE)
+  url          String
+  thumbnailUrl String?
+  mimeType     String    @default("image/png")
+  width        Int?
+  height       Int?
+  duration     Int?
+  metadata     Json      @default("{}")
+  createdAt    DateTime  @default(now())
+
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project             Project?             @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  scenesAsCurrent     Scene[]              @relation("SceneCurrentAsset")
+  characterReferences CharacterReference[]
+  generationsAsResult Generation[]         @relation("GenerationResultAsset")
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([type])
+  @@map("assets")
+}
+
+model Generation {
+  id            String           @id @default(cuid())
+  userId        String
+  projectId     String?
+  sceneId       String?
+  type          GenerationType   @default(IMAGE)
+  provider      String           @default("mock")
+  model         String
+  prompt        String
+  parameters    Json             @default("{}")
+  status        GenerationStatus @default(QUEUED)
+  progress      Int              @default(0)
+  resultAssetId String?
+  error         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  scene       Scene?   @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  resultAsset Asset?   @relation("GenerationResultAsset", fields: [resultAssetId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([sceneId])
+  @@index([status])
+  @@map("generations")
+}
+
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  description String
+  type        String   @default("USAGE")
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("credit_transactions")
+}
