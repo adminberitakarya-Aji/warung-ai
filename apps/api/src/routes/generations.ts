@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '@warungai/database'
 import { z } from 'zod'
+import { dispatchGenerationJob } from '../queue'
 
 export const generationsRoutes: FastifyPluginAsync = async (app) => {
   // GET /api/v1/generations - List recent generations
@@ -39,6 +40,18 @@ export const generationsRoutes: FastifyPluginAsync = async (app) => {
         progress: 0,
       },
       include: { resultAsset: true },
+    })
+
+    // Dispatch to BullMQ queue
+    await dispatchGenerationJob({
+      generationId: generation.id,
+      userId: generation.userId,
+      projectId: generation.projectId,
+      sceneId: generation.sceneId,
+      type: generation.type,
+      model: generation.model,
+      prompt: generation.prompt,
+      parameters: (generation.parameters as Record<string, unknown>) || {},
     })
 
     return reply.status(201).send({ generation })

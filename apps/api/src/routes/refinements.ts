@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { prisma } from '@warungai/database'
 import { z } from 'zod'
+import { dispatchRefinementJob } from '../queue'
 
 export const refinementsRoutes: FastifyPluginAsync = async (app) => {
   // POST /api/v1/refinements - Submit refinement task (upscale, inpaint, outpaint, color grade)
@@ -35,6 +36,14 @@ export const refinementsRoutes: FastifyPluginAsync = async (app) => {
         status: 'QUEUED',
         progress: 0,
       },
+    })
+
+    await dispatchRefinementJob({
+      generationId: generation.id,
+      userId: generation.userId,
+      sourceAssetId: assetId,
+      instruction,
+      tags,
     })
 
     return reply.status(201).send({ generation })

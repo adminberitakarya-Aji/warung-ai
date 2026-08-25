@@ -1,5 +1,6 @@
 import { prisma } from '@warungai/database';
 import { z } from 'zod';
+import { dispatchRefinementJob } from '../queue';
 export const refinementsRoutes = async (app) => {
     // POST /api/v1/refinements - Submit refinement task (upscale, inpaint, outpaint, color grade)
     app.post('/', async (request, reply) => {
@@ -30,6 +31,13 @@ export const refinementsRoutes = async (app) => {
                 status: 'QUEUED',
                 progress: 0,
             },
+        });
+        await dispatchRefinementJob({
+            generationId: generation.id,
+            userId: generation.userId,
+            sourceAssetId: assetId,
+            instruction,
+            tags,
         });
         return reply.status(201).send({ generation });
     });

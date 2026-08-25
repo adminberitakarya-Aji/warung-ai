@@ -1,5 +1,6 @@
 import { prisma } from '@warungai/database';
 import { z } from 'zod';
+import { dispatchGenerationJob } from '../queue';
 export const generationsRoutes = async (app) => {
     // GET /api/v1/generations - List recent generations
     app.get('/', async (request, reply) => {
@@ -33,6 +34,17 @@ export const generationsRoutes = async (app) => {
                 progress: 0,
             },
             include: { resultAsset: true },
+        });
+        // Dispatch to BullMQ queue
+        await dispatchGenerationJob({
+            generationId: generation.id,
+            userId: generation.userId,
+            projectId: generation.projectId,
+            sceneId: generation.sceneId,
+            type: generation.type,
+            model: generation.model,
+            prompt: generation.prompt,
+            parameters: generation.parameters || {},
         });
         return reply.status(201).send({ generation });
     });

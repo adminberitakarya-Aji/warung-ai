@@ -1,5 +1,5 @@
 {
-  "name": "@warungai/api",
+  "name": "@warungai/worker",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
@@ -10,17 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fastify/cors": "^10.0.2",
-    "@fastify/swagger": "^9.4.2",
-    "@fastify/swagger-ui": "^5.2.2",
     "@warungai/database": "workspace:*",
     "@warungai/types": "workspace:*",
     "bullmq": "^5.41.6",
     "dotenv": "^16.4.7",
-    "fastify": "^5.2.1",
-    "fastify-type-provider-zod": "^4.0.2",
-    "ioredis": "^5.5.0",
-    "zod": "^3.24.2"
+    "ioredis": "^5.5.0"
   },
   "devDependencies": {
     "@types/node": "^24",
