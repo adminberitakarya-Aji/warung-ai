@@ -1,7 +1,29 @@
 import { prisma } from '@warungai/database';
+import { generatePresignedUploadUrl } from '@warungai/storage';
 import { z } from 'zod';
 const ASSET_TYPES = ['IMAGE', 'VIDEO', 'AUDIO', 'REFERENCE'];
 export const assetsRoutes = async (app) => {
+    // POST /api/v1/assets/upload-url - Generate presigned S3/MinIO upload URL
+    app.post('/upload-url', async (request, reply) => {
+        const schema = z.object({
+            filename: z.string().min(1, 'filename wajib diisi'),
+            mimeType: z.string().min(1, 'mimeType wajib diisi'),
+            folder: z.enum(['uploads', 'generations', 'characters', 'audio']).optional().default('uploads'),
+            userId: z.string().optional().default('usr_1'),
+        });
+        const parsed = schema.safeParse(request.body);
+        if (!parsed.success) {
+            return reply.status(400).send({ error: parsed.error.issues[0]?.message || 'Data tidak valid' });
+        }
+        try {
+            const presigned = await generatePresignedUploadUrl(parsed.data);
+            return reply.send(presigned);
+        }
+        catch (err) {
+            console.warn('⚠️ Gagal membuat presigned URL S3:', err);
+            return reply.status(500).send({ error: 'Gagal membuat presigned upload URL' });
+        }
+    });
     // GET /api/v1/assets - List assets with search & type filtering
     app.get('/', async (request, reply) => {
         const { q, type } = request.query;
