@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@warungai/ai-client": "workspace:*",
     "@warungai/database": "workspace:*",
     "@warungai/storage": "workspace:*",
     "@warungai/types": "workspace:*",

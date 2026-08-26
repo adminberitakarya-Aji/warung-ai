@@ -1,5 +1,6 @@
 import { Job } from 'bullmq'
 import { prisma } from '@warungai/database'
+import { aiClient } from '@warungai/ai-client'
 import type { GenerationJobPayload } from '../queues'
 
 function sleep(ms: number) {
@@ -56,22 +57,51 @@ export async function processGenerationJob(job: Job<GenerationJobPayload>) {
       data: { status: 'UPLOADING', progress: 90 },
     })
     await job.updateProgress(90)
-    await sleep(1000)
 
-    // 5. Create Result Asset in database
+    // 5. Call AI service (with graceful fallback if offline)
     const assetName = prompt.slice(0, 40) || `Hasil Generasi ${new Date().toLocaleTimeString('id-ID')}`
+    let aiUrl = type === 'VIDEO' ? '/scenes/scene-01.svg' : '/scenes/scene-02.svg'
+    let aiWidth = 1920
+    let aiHeight = 1080
+    let aiDuration: number | null = type === 'VIDEO' ? 5 : null
+
+    try {
+      const aiResult = type === 'VIDEO'
+        ? await aiClient.generateVideo({
+            generation_id: generationId,
+            prompt,
+            model,
+            duration_seconds: 5,
+          })
+        : await aiClient.generateImage({
+            generation_id: generationId,
+            prompt,
+            model,
+          })
+
+      if (aiResult.status === 'completed' && aiResult.asset_url) {
+        aiUrl = aiResult.asset_url
+        aiWidth = aiResult.width ?? 1920
+        aiHeight = aiResult.height ?? 1080
+        aiDuration = aiResult.duration_seconds ?? aiDuration
+      }
+    } catch {
+      console.warn(`⚠️ [Worker] AI service tidak tersedia, menggunakan placeholder untuk ${generationId}`)
+    }
+
+    // 6. Create Result Asset in database
     const resultAsset = await prisma.asset.create({
       data: {
         userId,
         projectId: projectId || 'prj_1',
         name: assetName,
         type: type === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-        url: type === 'VIDEO' ? '/scenes/scene-01.svg' : '/scenes/scene-02.svg',
-        thumbnailUrl: type === 'VIDEO' ? '/scenes/scene-01.svg' : '/scenes/scene-02.svg',
+        url: aiUrl,
+        thumbnailUrl: aiUrl,
         mimeType: type === 'VIDEO' ? 'video/mp4' : 'image/png',
-        width: 1920,
-        height: 1080,
-        duration: type === 'VIDEO' ? 5 : null,
+        width: aiWidth,
+        height: aiHeight,
+        duration: aiDuration,
       },
     })
 
